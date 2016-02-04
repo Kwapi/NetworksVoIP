@@ -19,6 +19,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
+import static networksvoip.NetworksVoIP.datagramSocketNumber;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
 import uk.ac.uea.cmp.voip.DatagramSocket4;
@@ -26,6 +27,7 @@ import uk.ac.uea.cmp.voip.DatagramSocket4;
 public class AudioSender implements Runnable{
     
     static DatagramSocket sending_socket;
+ 
     
     public void start(){
         Thread thread = new Thread(this);
@@ -49,7 +51,17 @@ public class AudioSender implements Runnable{
 	}
         
         try{
-		sending_socket = new DatagramSocket4();
+                switch(datagramSocketNumber){
+                    case 1: sending_socket = new DatagramSocket();
+                    break;
+                    case 2: sending_socket = new DatagramSocket2();
+                        break;
+                    case 3: sending_socket = new DatagramSocket3();
+                        break;
+                    case 4: sending_socket = new DatagramSocket4();
+                
+                }
+		
 	} catch (SocketException e){
                 System.out.println("ERROR: TextSender: Could not open UDP socket to send from.");
 		e.printStackTrace();
@@ -58,24 +70,18 @@ public class AudioSender implements Runnable{
        
         Vector<byte[]> voiceVector = new Vector<byte[]>();
 
-        
         AudioRecorder recorder = null;
         try {
             recorder = new AudioRecorder();
         } catch (LineUnavailableException ex) {
             Logger.getLogger(AudioSender.class.getName()).log(Level.SEVERE, null, ex);
         }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        
         boolean running = true;
         
-        
-        ByteBuffer byteBufferLong = ByteBuffer.allocate(Long.BYTES);
-        ByteBuffer byteBufferInt = ByteBuffer.allocate(4);
         int counter = 1;
         while (running){
-            try{
-                
-           
+            try{                       
                 //  4 bytes ordering
                 //  8 bytes timestamp
                 
@@ -100,8 +106,7 @@ public class AudioSender implements Runnable{
                 
                 //for testing qos
                 voiceVector.add(audioData);
-                
-                
+               
                 //  COMPILE PACKET DATA (HEADER + AUDIO)
                 ByteArrayOutputStream compilePacket = new ByteArrayOutputStream( );
                 compilePacket.write(ordering);
