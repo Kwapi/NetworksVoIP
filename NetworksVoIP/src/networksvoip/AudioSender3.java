@@ -23,7 +23,7 @@ import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
 import uk.ac.uea.cmp.voip.DatagramSocket4;
 
-public class AudioSender implements Runnable{
+public class AudioSender3 implements Runnable{
     
     static DatagramSocket sending_socket;
     
@@ -49,7 +49,7 @@ public class AudioSender implements Runnable{
 	}
         
         try{
-		sending_socket = new DatagramSocket();
+		sending_socket = new DatagramSocket3();
 	} catch (SocketException e){
                 System.out.println("ERROR: TextSender: Could not open UDP socket to send from.");
 		e.printStackTrace();
@@ -63,7 +63,7 @@ public class AudioSender implements Runnable{
         try {
             recorder = new AudioRecorder();
         } catch (LineUnavailableException ex) {
-            Logger.getLogger(AudioSender.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AudioSender3.class.getName()).log(Level.SEVERE, null, ex);
         }
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
         boolean running = true;

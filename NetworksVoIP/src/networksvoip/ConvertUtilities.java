@@ -15,6 +15,20 @@ import java.nio.ByteOrder;
  */
 public class ConvertUtilities {
     
+    public static byte[] flatten(byte[]... arrs) {
+        int L = 0;
+        for (byte[] arr : arrs) {
+            L += arr.length;
+        }
+        byte[] ret = new byte[L];
+        int start = 0;
+        for (byte[] arr : arrs) {
+            System.arraycopy(arr, 0, ret, start, arr.length);
+            start += arr.length;
+        }
+        return ret;
+    }
+    
    public static int byteArrayToInt(byte[] b) {
     final ByteBuffer bb = ByteBuffer.wrap(b);
     return bb.getInt();

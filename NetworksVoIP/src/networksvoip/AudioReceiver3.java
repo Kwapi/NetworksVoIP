@@ -22,7 +22,7 @@ import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
 import uk.ac.uea.cmp.voip.DatagramSocket4;
 
-public class AudioReceiver implements Runnable{
+public class AudioReceiver3 implements Runnable{
     
     static DatagramSocket receiving_socket;
     
@@ -43,7 +43,7 @@ public class AudioReceiver implements Runnable{
         
         //DatagramSocket receiving_socket;
         try{
-		receiving_socket = new DatagramSocket(PORT);
+		receiving_socket = new DatagramSocket3(PORT);
 	} catch (SocketException e){
                 System.out.println("ERROR: TextReceiver: Could not open UDP socket to receive from.");
 		e.printStackTrace();
@@ -60,7 +60,7 @@ public class AudioReceiver implements Runnable{
         try {
             player = new AudioPlayer();
         } catch (LineUnavailableException ex) {
-            Logger.getLogger(AudioReceiver.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AudioReceiver3.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         ByteBuffer byteBufferInt = ByteBuffer.allocate(4);
