@@ -16,13 +16,14 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
-import static networksvoip.ConvertUtilities.flatten;
-import networksvoip.Wav;
+import static networksvoip.Utilities.flatten;
+
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
 import uk.ac.uea.cmp.voip.DatagramSocket4;
@@ -30,6 +31,7 @@ import uk.ac.uea.cmp.voip.DatagramSocket4;
 public class AudioSender2 implements Runnable{
     
     static DatagramSocket sending_socket;
+    static final int BLOCK_INTERLEAVER_DIM = 2;
     
     public void start(){
         Thread thread = new Thread(this);
@@ -76,51 +78,70 @@ public class AudioSender2 implements Runnable{
         ByteBuffer byteBufferLong = ByteBuffer.allocate(Long.BYTES);
         ByteBuffer byteBufferInt = ByteBuffer.allocate(4);
         int counter = 1;
+        int blockInterleaverSize = BLOCK_INTERLEAVER_DIM * BLOCK_INTERLEAVER_DIM;
+        int blockCounter = 1;
+        ArrayList<DatagramPacket> blockInterleaver = new ArrayList<>();
+        ArrayList<DatagramPacket> blockInterleaverTemp = new ArrayList<>();
+        
         while (counter<=1000){
             try{
                 
-           
-                //  4 bytes ordering
-                //  8 bytes timestamp
+                while(blockCounter<=4){
+                    //  4 bytes ordering
+                    //  8 bytes timestamp
+
+                    int headerSize = 8 + 4;
+                    int dataSize = 512;
+                    int blockSize = dataSize + headerSize;
+                    byte audioData[];
+                    byte timestamp[];
+                    byte ordering[];
+
+
+                    //  AUDIO DATA
+                    audioData = recorder.getBlock(); 
+
+                    //  HEADER
+                    //  timestamp
+                    timestamp = Utilities.longToByteArray(System.currentTimeMillis());
+
+
+                    //  ordering
+                    ordering = Utilities.intToByteArray(counter);
+
+
+
+
+                    //  COMPILE PACKET DATA (HEADER + AUDIO)
+                    ByteArrayOutputStream compilePacket = new ByteArrayOutputStream( );
+                    compilePacket.write(ordering);
+                    compilePacket.write(timestamp);
+                    compilePacket.write(audioData);
+
+                    byte data[] = compilePacket.toByteArray( );
+
+                    //Make a DatagramPacket from it, with client address and port number
+                    DatagramPacket packet = new DatagramPacket(data, data.length, clientIP, PORT);
+                    
+                    blockInterleaverTemp.add(packet);
+                    
+                    counter++;
+                    blockCounter++;
+                }
+                blockCounter = 1;
                 
-                int headerSize = 8 + 4;
-                int dataSize = 512;
-                int blockSize = dataSize + headerSize;
-                byte audioData[];
-                byte timestamp[];
-                byte ordering[];
-                
-                  
-                //  AUDIO DATA
-                audioData = recorder.getBlock(); 
-                
-                //  HEADER
-                //  timestamp
-                timestamp = ConvertUtilities.longToByteArray(System.currentTimeMillis());
                 
                 
-                //  ordering
-                ordering = ConvertUtilities.intToByteArray(counter);
-                
-                //for testing qos
-                voiceVector.add(audioData);
-                
-                
-                //  COMPILE PACKET DATA (HEADER + AUDIO)
-                ByteArrayOutputStream compilePacket = new ByteArrayOutputStream( );
-                compilePacket.write(ordering);
-                compilePacket.write(timestamp);
-                compilePacket.write(audioData);
-                                
-                byte data[] = compilePacket.toByteArray( );
-                               
-                //Make a DatagramPacket from it, with client address and port number
-                DatagramPacket packet = new DatagramPacket(data, data.length, clientIP, PORT);
-            
+                blockInterleaver = Utilities.getBlockInterleaver(BLOCK_INTERLEAVER_DIM, blockInterleaverTemp);
                 //Send it
-                sending_socket.send(packet);
+                for (DatagramPacket packet : blockInterleaver){
+                    sending_socket.send(packet);
+                }
+                blockInterleaverTemp.clear();
+                
+                
                                               
-                counter++;
+                
             } catch (IOException e){
                 System.out.println("ERROR: TextSender: Some random IO error occured!");
                 e.printStackTrace();
@@ -131,16 +152,7 @@ public class AudioSender2 implements Runnable{
         
         //Close the socket
         sending_socket.close();
-        /*Path currentRelativePath = Paths.get("");
-        String s = currentRelativePath.toAbsolutePath().toString();
-
-        Wav wavWriter = new Wav();
-        wavWriter.setPath(s);
         
-        wavWriter.myData = flatten(voiceVector.toArray(new byte[0][]));
-        
-        wavWriter.save();
-                */
         
         
     }

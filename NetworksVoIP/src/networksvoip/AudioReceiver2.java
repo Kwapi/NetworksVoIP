@@ -98,10 +98,12 @@ public class AudioReceiver2 implements Runnable{
                 byte[] audio = Arrays.copyOfRange(buffer, 12, 524);
                 
                 
-                int orderingInt = ConvertUtilities.byteArrayToInt(ordering);
-                long timestampLong = ConvertUtilities.byteArrayToLong(timestamp);
+                int orderingInt = Utilities.byteArrayToInt(ordering);
+                long timestampLong = Utilities.byteArrayToLong(timestamp);
                 
                 long delay = System.currentTimeMillis() - timestampLong;
+                
+                System.out.println(orderingInt);
                 
                 if(orderingInt != lastPacketReceived + 1){
                     
@@ -110,7 +112,9 @@ public class AudioReceiver2 implements Runnable{
                     noPacketsSinceError = 0;
                     
                     int packetsLost = orderingInt - lastPacketReceived - 1;
-                    System.out.printf("\nLOST:%d",packetsLost);
+                    //System.out.printf("\nLOST:%d",packetsLost);
+                    
+                    
                     
                     packetsLostArr.add((Integer)packetsLost);
                 }

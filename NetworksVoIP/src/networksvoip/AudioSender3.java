@@ -92,11 +92,11 @@ public class AudioSender3 implements Runnable{
                 
                 //  HEADER
                 //  timestamp
-                timestamp = ConvertUtilities.longToByteArray(System.currentTimeMillis());
+                timestamp = Utilities.longToByteArray(System.currentTimeMillis());
                 
                 
                 //  ordering
-                ordering = ConvertUtilities.intToByteArray(counter);
+                ordering = Utilities.intToByteArray(counter);
                 
                 //for testing qos
                 voiceVector.add(audioData);
