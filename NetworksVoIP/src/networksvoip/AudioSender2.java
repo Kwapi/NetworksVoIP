@@ -31,8 +31,11 @@ import uk.ac.uea.cmp.voip.DatagramSocket4;
 public class AudioSender2 implements Runnable{
     
     static DatagramSocket sending_socket;
-    static final int BLOCK_INTERLEAVER_DIM = 2;
+    static int BLOCK_INTERLEAVER_DIM = 0;
     
+    public void setBlockInterleaverDimension(int dim){
+        BLOCK_INTERLEAVER_DIM = dim;
+    }
     public void start(){
         Thread thread = new Thread(this);
 	thread.start();
@@ -86,7 +89,7 @@ public class AudioSender2 implements Runnable{
         while (counter<=1000){
             try{
                 
-                while(blockCounter<=4){
+                while(blockCounter<=blockInterleaverSize){
                     //  4 bytes ordering
                     //  8 bytes timestamp
 

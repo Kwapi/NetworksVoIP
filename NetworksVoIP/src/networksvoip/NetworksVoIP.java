@@ -4,12 +4,17 @@ package networksvoip;
 import java.util.Arrays;
 
 public class NetworksVoIP {
-
+   
+   
    public static void main(String[] args) {
+       
+       int blockInterleaverDim = 2;
        
        AudioReceiver2 audioReceiver = new AudioReceiver2();
        AudioSender2 audioSender = new AudioSender2();
        
+       audioReceiver.setBlockInterleaverDimension(blockInterleaverDim);
+       audioSender.setBlockInterleaverDimension(blockInterleaverDim);
        audioReceiver.start();
        audioSender.start();
               
