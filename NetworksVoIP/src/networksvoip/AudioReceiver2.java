@@ -15,6 +15,7 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedMap;
@@ -23,6 +24,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
+import static networksvoip.NetworksVoIP.BLOCK_INTERLEAVER_DIM;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
 import uk.ac.uea.cmp.voip.DatagramSocket4;
@@ -30,11 +32,8 @@ import uk.ac.uea.cmp.voip.DatagramSocket4;
 public class AudioReceiver2 implements Runnable {
 
     static DatagramSocket receiving_socket;
-    static int BLOCK_INTERLEAVER_DIM = 0;
-    
-    public void setBlockInterleaverDimension(int dim){
-        BLOCK_INTERLEAVER_DIM = dim;
-    }
+   
+   
     public void start() {
         Thread thread = new Thread(this);
         thread.start();
@@ -70,8 +69,13 @@ public class AudioReceiver2 implements Runnable {
         ArrayList<Integer> packetsReceivedArr = new ArrayList<>();
 
         int lastPlayed = 0;
-
+        
+        final int BUFFER_SIZE = BLOCK_INTERLEAVER_DIM*BLOCK_INTERLEAVER_DIM;
+        
         TreeMap<Integer, byte[]> audioBuffMap = new TreeMap<Integer, byte[]>();
+
+        ArrayList<DataPacket> bufferOutput = new ArrayList<>();
+        
         while (running) {
 
             try {
@@ -91,14 +95,9 @@ public class AudioReceiver2 implements Runnable {
                     System.out.println("Error in transmission");
                 }
 
-                byte[] ordering = Arrays.copyOfRange(buffer, 0, 4);
-                byte[] timestamp = Arrays.copyOfRange(buffer, 4, 12);
-                byte[] audio = Arrays.copyOfRange(buffer, 12, 524);
+                DataPacket currentPacket = new DataPacket(packet.getData());
 
-                int orderingInt = Utilities.byteArrayToInt(ordering);
-                long timestampLong = Utilities.byteArrayToLong(timestamp);
-
-                long delay = System.currentTimeMillis() - timestampLong;
+                long delay = System.currentTimeMillis() - currentPacket.getTimestamp();
 
                 // PACKETS LOST OR WRONG ORDER
                 /*
@@ -117,29 +116,32 @@ public class AudioReceiver2 implements Runnable {
                  */
                 //System.out.printf("\nPacket: \t %d \t Delay: \t%d ms",orderingInt,delay);
                
-                // RECEIVING BLOCK INTERLEAVER
-                // SORTING AND DECODING
-                if (audioBuffMap.size() != BLOCK_INTERLEAVER_DIM*BLOCK_INTERLEAVER_DIM) {
-                    audioBuffMap.put(orderingInt, audio);
-                    voiceVector.add(audio);
-                } else {
-
-                    int currentIndex = 0;
-                    for (Map.Entry<Integer, byte[]> entry : audioBuffMap.entrySet()) {
-                        player.playBlock(entry.getValue());
-                        currentIndex = entry.getKey();
-                        
-                        System.out.println("Current Packet:\t" + currentIndex + "\tPackets lost:   " + (currentIndex - lastPlayed - 1));
-                        
-                        lastPlayed = currentIndex;
-                    }
-
-                    audioBuffMap.clear();
+                
+                bufferOutput.add(currentPacket);
+                Collections.sort(bufferOutput);
+                
+                while(bufferOutput.size() >= BUFFER_SIZE){
+                    DataPacket dataPacket = bufferOutput.get(0);
+                    
+                    player.playBlock(dataPacket.getData());
+                    
+                    
+                    System.out.println("PLAYING PACKET\t" + dataPacket.getId());
+                    bufferOutput.remove(0);
+                    
+                    
                 }
                 
-                lastPacketReceived = orderingInt;
+                
+                lastPacketReceived = currentPacket.getId();
                 noPacketsSinceError++;
 
+                
+                
+                
+                
+                
+                
                 if (lastPacketReceived == 1000) {
                     break;
                 }
@@ -168,3 +170,26 @@ public class AudioReceiver2 implements Runnable {
         
     }
 }
+
+/*
+// RECEIVING BLOCK INTERLEAVER
+                // SORTING AND DECODING
+                if (audioBuffMap.size() != BLOCK_INTERLEAVER_DIM*BLOCK_INTERLEAVER_DIM) {
+                    audioBuffMap.put(orderingInt, audio);
+                    voiceVector.add(audio);
+                } else {
+
+                    int currentIndex = 0;
+                    for (Map.Entry<Integer, byte[]> entry : audioBuffMap.entrySet()) {
+                        player.playBlock(entry.getValue());
+                        currentIndex = entry.getKey();
+                        
+                        System.out.println("Current Packet:\t" + currentIndex + "\tPackets lost:   " + (currentIndex - lastPlayed - 1));
+                        
+                        lastPlayed = currentIndex;
+                    }
+
+                    audioBuffMap.clear();
+                }
+
+*/

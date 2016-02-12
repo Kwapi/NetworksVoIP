@@ -5,16 +5,19 @@ import java.util.Arrays;
 
 public class NetworksVoIP {
    
+   public static final int REPETITION = 1;
+   public static final int SILENCE = 2;
+   static boolean MODIFIED;
+   static int BLOCK_INTERLEAVER_DIM;
    
    public static void main(String[] args) {
        
-       int blockInterleaverDim = 2;
+       MODIFIED = false;
+       BLOCK_INTERLEAVER_DIM = 4;
        
-       AudioReceiver2 audioReceiver = new AudioReceiver2();
-       AudioSender2 audioSender = new AudioSender2();
+       AudioReceiver3 audioReceiver = new AudioReceiver3();
+       AudioSender3 audioSender = new AudioSender3();
        
-       audioReceiver.setBlockInterleaverDimension(blockInterleaverDim);
-       audioSender.setBlockInterleaverDimension(blockInterleaverDim);
        audioReceiver.start();
        audioSender.start();
               

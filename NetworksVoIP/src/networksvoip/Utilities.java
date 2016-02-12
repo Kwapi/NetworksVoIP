@@ -10,6 +10,8 @@ import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import static networksvoip.NetworksVoIP.REPETITION;
+import static networksvoip.NetworksVoIP.SILENCE;
 
 /**
  *
@@ -18,6 +20,35 @@ import java.util.ArrayList;
 public class Utilities {
     
     
+    
+    
+    public static boolean isError(DataPacket current, DataPacket next){
+     
+        return next.getId() != current.getId() + 1;
+    }
+    
+    public static void concealError(ArrayList<DataPacket> buffer, int type){
+        DataPacket fillerPacket = null;
+        switch (type){
+            case REPETITION:
+                fillerPacket= new DataPacket(buffer.get(0));
+                fillerPacket.setSynthetic(true);
+                fillerPacket.setId(fillerPacket.getId() + 1);
+                buffer.add(1, fillerPacket);
+                
+                break;
+            case SILENCE:
+                fillerPacket = new DataPacket(buffer.get(0));
+                fillerPacket.setSynthetic(true);
+                fillerPacket.setId(fillerPacket.getId() + 1);
+                byte[] silence = new byte[fillerPacket.getData().length];
+                
+                fillerPacket.setData(silence);
+                buffer.add(1, fillerPacket);
+                break;
+        }
+        
+    }
     public static ArrayList<DatagramPacket> getBlockInterleaver (int blockInterleaverSize, ArrayList<DatagramPacket> original){
         
         ArrayList<DatagramPacket> mumbledArr = new ArrayList<>();

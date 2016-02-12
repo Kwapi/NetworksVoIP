@@ -22,6 +22,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
+import static networksvoip.NetworksVoIP.BLOCK_INTERLEAVER_DIM;
 import static networksvoip.Utilities.flatten;
 
 import uk.ac.uea.cmp.voip.DatagramSocket2;
@@ -31,11 +32,7 @@ import uk.ac.uea.cmp.voip.DatagramSocket4;
 public class AudioSender2 implements Runnable{
     
     static DatagramSocket sending_socket;
-    static int BLOCK_INTERLEAVER_DIM = 0;
     
-    public void setBlockInterleaverDimension(int dim){
-        BLOCK_INTERLEAVER_DIM = dim;
-    }
     public void start(){
         Thread thread = new Thread(this);
 	thread.start();
@@ -65,8 +62,7 @@ public class AudioSender2 implements Runnable{
                 System.exit(0);
 	}
        
-        Vector<byte[]> voiceVector = new Vector<byte[]>();
-
+       
         
         AudioRecorder recorder = null;
         try {
@@ -74,12 +70,8 @@ public class AudioSender2 implements Runnable{
         } catch (LineUnavailableException ex) {
             Logger.getLogger(AudioSender2.class.getName()).log(Level.SEVERE, null, ex);
         }
-        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-        boolean running = true;
-        
-        
-        ByteBuffer byteBufferLong = ByteBuffer.allocate(Long.BYTES);
-        ByteBuffer byteBufferInt = ByteBuffer.allocate(4);
+              
+                
         int counter = 1;
         int blockInterleaverSize = BLOCK_INTERLEAVER_DIM * BLOCK_INTERLEAVER_DIM;
         int blockCounter = 1;
