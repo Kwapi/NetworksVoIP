@@ -15,8 +15,8 @@ public class NetworksVoIP {
        MODIFIED = false;
        BLOCK_INTERLEAVER_DIM = 4;
        
-       AudioReceiver3 audioReceiver = new AudioReceiver3();
-       AudioSender3 audioSender = new AudioSender3();
+       AudioReceiver4 audioReceiver = new AudioReceiver4();
+       AudioSender4 audioSender = new AudioSender4();
        
        audioReceiver.start();
        audioSender.start();

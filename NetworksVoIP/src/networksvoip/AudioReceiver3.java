@@ -72,9 +72,13 @@ public class AudioReceiver3 implements Runnable {
         } catch (LineUnavailableException ex) {
             Logger.getLogger(AudioReceiver3.class.getName()).log(Level.SEVERE, null, ex);
         }
-
+        
+        ArrayList<Integer> jumbledPackets = new ArrayList<>();
+        ArrayList<Integer> lostPackets = new ArrayList<>();
+        
+        int noPacketsReceived = 0;
         final int BUFFER_SIZE = BLOCK_INTERLEAVER_DIM * BLOCK_INTERLEAVER_DIM;
-
+        
         ArrayList<DataPacket> bufferOutput = new ArrayList<>();
         while (running) {
 
@@ -91,6 +95,7 @@ public class AudioReceiver3 implements Runnable {
                     receiving_socket.receive(packet);
                 } catch (SocketTimeoutException e) {
                     System.out.println("Socket timed out");
+                    running = false;
                 } catch (IOException e) {
                     System.out.println("Error in transmission");
                 }
@@ -118,15 +123,19 @@ public class AudioReceiver3 implements Runnable {
 
                     }
                 } else {
+                    
+                    
+                    
+                    System.out.println(currentPacket.getId());
+                                                            
                     player.playBlock(currentPacket.getData());
                     voiceVector.add(currentPacket.getData());
                 }
 
                 lastPacketReceived = currentPacket.getId();
-
-                if (lastPacketReceived >= 1000) {
-                    running = false;
-                }
+                
+                noPacketsReceived++;
+               
             } catch (IOException e) {
                 System.out.println("ERROR: TextReceiver: Some random IO error occured!");
                 e.printStackTrace();
@@ -135,7 +144,8 @@ public class AudioReceiver3 implements Runnable {
         //Close the socket
         receiving_socket.close();
         //***************************************************
-
+        
+        System.out.println("Packets received: " + noPacketsReceived);
         // PLAYBACK
         Iterator<byte[]> voiceItr = voiceVector.iterator();
         while (voiceItr.hasNext()) {

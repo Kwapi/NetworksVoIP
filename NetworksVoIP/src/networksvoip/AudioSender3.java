@@ -71,7 +71,7 @@ public class AudioSender3 implements Runnable {
         ArrayList<DatagramPacket> blockInterleaver = new ArrayList<>();
         ArrayList<DatagramPacket> blockInterleaverTemp = new ArrayList<>();
 
-        while (counter <= 1010) {
+        while (counter < 1000) {
             try {
                 //  4 bytes ordering
                 //  8 bytes timestamp
@@ -151,6 +151,8 @@ public class AudioSender3 implements Runnable {
                 e.printStackTrace();
             }
         }
+        
+        System.out.println("Packets sent:" + counter);
         //Close audio input
         recorder.close();
 
