@@ -14,22 +14,24 @@ public class NetworksVoIP {
    static boolean ANALYSIS;
    static boolean GENERAL_PRINTOUTS;
    static int BUFFER_SIZE;
+  
    
    public static void main(String[] args) {
        
-       MODIFIED = true;
-        BUFFER_SIZE = 9;
-       INTERLEAVING = false;
-        BLOCK_INTERLEAVER_DIM = 3;
+       MODIFIED = false;
        
-       DELAY_ANALYSIS = true;
-       ANALYSIS = false;
-       GENERAL_PRINTOUTS = true;
+        BUFFER_SIZE = 16;
+       INTERLEAVING = false;
+        BLOCK_INTERLEAVER_DIM = 4;
+       
+       DELAY_ANALYSIS = false;
+       ANALYSIS = true;
+       GENERAL_PRINTOUTS = false;
        
        
      
-       AudioReceiver3 audioReceiver = new AudioReceiver3();
-       AudioSender3 audioSender = new AudioSender3();
+       AudioReceiver2 audioReceiver = new AudioReceiver2();
+       AudioSender2 audioSender = new AudioSender2();
        
        audioReceiver.start();
        audioSender.start();
