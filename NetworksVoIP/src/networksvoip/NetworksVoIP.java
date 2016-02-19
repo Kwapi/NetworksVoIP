@@ -7,16 +7,29 @@ public class NetworksVoIP {
    
    public static final int REPETITION = 1;
    public static final int SILENCE = 2;
+   public static boolean INTERLEAVING;
    static boolean MODIFIED;
    static int BLOCK_INTERLEAVER_DIM;
+   static boolean DELAY_ANALYSIS;
+   static boolean ANALYSIS;
+   static boolean GENERAL_PRINTOUTS;
+   static int BUFFER_SIZE;
    
    public static void main(String[] args) {
        
-       MODIFIED = false;
-       BLOCK_INTERLEAVER_DIM = 4;
+       MODIFIED = true;
+        BUFFER_SIZE = 9;
+       INTERLEAVING = false;
+        BLOCK_INTERLEAVER_DIM = 3;
        
-       AudioReceiver4 audioReceiver = new AudioReceiver4();
-       AudioSender4 audioSender = new AudioSender4();
+       DELAY_ANALYSIS = true;
+       ANALYSIS = false;
+       GENERAL_PRINTOUTS = true;
+       
+       
+     
+       AudioReceiver3 audioReceiver = new AudioReceiver3();
+       AudioSender3 audioSender = new AudioSender3();
        
        audioReceiver.start();
        audioSender.start();

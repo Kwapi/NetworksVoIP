@@ -21,8 +21,11 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
-
+import static networksvoip.NetworksVoIP.ANALYSIS;
 import static networksvoip.NetworksVoIP.BLOCK_INTERLEAVER_DIM;
+import static networksvoip.NetworksVoIP.BUFFER_SIZE;
+import static networksvoip.NetworksVoIP.DELAY_ANALYSIS;
+import static networksvoip.NetworksVoIP.GENERAL_PRINTOUTS;
 import static networksvoip.NetworksVoIP.MODIFIED;
 import static networksvoip.NetworksVoIP.REPETITION;
 import static networksvoip.NetworksVoIP.SILENCE;
@@ -77,7 +80,7 @@ public class AudioReceiver3 implements Runnable {
         ArrayList<Integer> lostPackets = new ArrayList<>();
         
         int noPacketsReceived = 0;
-        final int BUFFER_SIZE = BLOCK_INTERLEAVER_DIM * BLOCK_INTERLEAVER_DIM;
+        
         
         ArrayList<DataPacket> bufferOutput = new ArrayList<>();
         while (running) {
@@ -110,23 +113,31 @@ public class AudioReceiver3 implements Runnable {
                         DataPacket current = bufferOutput.get(0);
                         DataPacket next = bufferOutput.get(1);
                         player.playBlock(current.getData());
+                        
+                        long currentTime = System.currentTimeMillis();
+                        if(DELAY_ANALYSIS){
+                            System.out.println((currentTime - current.getTimestamp()));
+                        }
                         voiceVector.add(current.getData());
 
                         if (isError(current, next)) {
                             concealError(bufferOutput, REPETITION);
                         }
+                        
+                        if(GENERAL_PRINTOUTS){
+                            String synthetic = (current.isSynthetic()) ? "synthetic" : "";
 
-                        String synthetic = (current.isSynthetic()) ? "synthetic" : "";
-
-                        System.out.println("PLAYING PACKET\t" + current.getId() + "\t" + synthetic);
+                            System.out.println("PLAYING PACKET\t" + current.getId() + "\t" + synthetic);
+                        }
                         bufferOutput.remove(0);
 
                     }
                 } else {
                     
                     
-                    
-                    System.out.println(currentPacket.getId());
+                    if(ANALYSIS){
+                        System.out.println(currentPacket.getId());
+                    }
                                                             
                     player.playBlock(currentPacket.getData());
                     voiceVector.add(currentPacket.getData());

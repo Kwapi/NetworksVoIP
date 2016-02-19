@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
 import static networksvoip.NetworksVoIP.BLOCK_INTERLEAVER_DIM;
+import static networksvoip.NetworksVoIP.INTERLEAVING;
 import static networksvoip.NetworksVoIP.MODIFIED;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
@@ -83,7 +84,7 @@ public class AudioSender3 implements Runnable {
                 byte timestamp[];
                 byte ordering[];
 
-                if (MODIFIED) {
+                if (INTERLEAVING) {
                     while (blockCounter <= blockInterleaverSize) {
 
                         //  AUDIO DATA

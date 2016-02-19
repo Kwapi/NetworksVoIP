@@ -1,0 +1,13 @@
+
+pathOriginal = '../';
+org_input = strcat(pathOriginal,'input.wav');
+org_input = strcat(pathOriginal,'output.wav');
+
+
+
+path = '../Recordings/DatagramSocket3/';
+
+input = strcat(path,'input_trim7.wav');
+output = strcat(path,'output_trim7.wav');
+
+pesq(input,output);
