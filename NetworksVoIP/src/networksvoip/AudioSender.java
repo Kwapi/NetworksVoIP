@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 import javax.sound.sampled.LineUnavailableException;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
@@ -69,8 +71,6 @@ public class AudioSender implements Runnable{
         boolean running = true;
         
         
-        ByteBuffer byteBufferLong = ByteBuffer.allocate(Long.BYTES);
-        ByteBuffer byteBufferInt = ByteBuffer.allocate(4);
         int counter = 1;
         while (running){
             try{
@@ -78,13 +78,15 @@ public class AudioSender implements Runnable{
            
                 //  4 bytes ordering
                 //  8 bytes timestamp
+                //  8 bytes checksum
                 
-                int headerSize = 8 + 4;
+                int headerSize = 8 + 4 + 8;
                 int dataSize = 512;
                 int blockSize = dataSize + headerSize;
                 byte audioData[];
                 byte timestamp[];
                 byte ordering[];
+                byte checksum[];
                 
                   
                 //  AUDIO DATA
@@ -93,21 +95,27 @@ public class AudioSender implements Runnable{
                 //  HEADER
                 //  timestamp
                 timestamp = Utilities.longToByteArray(System.currentTimeMillis());
-                
-                
+                                
                 //  ordering
                 ordering = Utilities.intToByteArray(counter);
                 
                 //for testing qos
                 voiceVector.add(audioData);
                 
+                //  checksum
+                Checksum crcChecksum = new CRC32();
+                crcChecksum.update(audioData,0,audioData.length);
+                long checksumVal = crcChecksum.getValue();
+                checksum = Utilities.longToByteArray(checksumVal);
                 
                 //  COMPILE PACKET DATA (HEADER + AUDIO)
                 ByteArrayOutputStream compilePacket = new ByteArrayOutputStream( );
                 compilePacket.write(ordering);
                 compilePacket.write(timestamp);
+                compilePacket.write(checksum);
                 compilePacket.write(audioData);
-                                
+                
+                                                
                 byte data[] = compilePacket.toByteArray( );
                                
                 //Make a DatagramPacket from it, with client address and port number

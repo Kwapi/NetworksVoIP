@@ -27,7 +27,7 @@ public class Utilities {
         return next.getId() != current.getId() + 1;
     }
     
-    public static void concealError(ArrayList<DataPacket> buffer, int type){
+    public static void concealErrorBuffer(ArrayList<DataPacket> buffer, int type){
         DataPacket fillerPacket = null;
         switch (type){
             case REPETITION:
@@ -49,6 +49,34 @@ public class Utilities {
         }
         
     }
+    
+    public static DataPacket concealError(DataPacket previous, DataPacket current, int type){
+        
+        if(current.getId() <= 1){
+            type = SILENCE;
+        }
+        
+        DataPacket fillerPacket = null;
+        switch (type){
+            case REPETITION:
+                fillerPacket= new DataPacket(previous);
+                fillerPacket.setSynthetic(true);
+                fillerPacket.setId(fillerPacket.getId() + 1);
+                break;
+            case SILENCE:
+                fillerPacket= new DataPacket(previous);
+                fillerPacket.setSynthetic(true);
+                fillerPacket.setId(fillerPacket.getId() + 1);
+                byte[] silence = new byte[current.getData().length];
+                
+                fillerPacket.setData(silence);
+               break;
+        }
+        
+        return fillerPacket;
+    }
+    
+    
     public static ArrayList<DatagramPacket> getBlockInterleaver (int blockInterleaverSize, ArrayList<DatagramPacket> original){
         
         ArrayList<DatagramPacket> mumbledArr = new ArrayList<>();

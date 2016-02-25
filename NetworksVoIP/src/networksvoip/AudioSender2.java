@@ -3,19 +3,17 @@ package networksvoip;
 import CMPC3M06.AudioRecorder;
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Vector;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 import javax.sound.sampled.LineUnavailableException;
 import static networksvoip.NetworksVoIP.BLOCK_INTERLEAVER_DIM;
 import static networksvoip.NetworksVoIP.INTERLEAVING;
 import static networksvoip.NetworksVoIP.MODIFIED;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
-import uk.ac.uea.cmp.voip.DatagramSocket3;
-import uk.ac.uea.cmp.voip.DatagramSocket4;
 
 public class AudioSender2 implements Runnable {
 
@@ -68,12 +66,13 @@ public class AudioSender2 implements Runnable {
                 //  4 bytes ordering
                 //  8 bytes timestamp
 
-                int headerSize = 8 + 4;
+                int headerSize = 8 + 4 + 8;
                 int dataSize = 512;
                 int blockSize = dataSize + headerSize;
                 byte audioData[];
                 byte timestamp[];
                 byte ordering[];
+                byte checksum[];
 
                 if (INTERLEAVING) {
                     while (blockCounter <= blockInterleaverSize) {
@@ -84,15 +83,24 @@ public class AudioSender2 implements Runnable {
                         //  HEADER
                         //  timestamp
                         timestamp = Utilities.longToByteArray(System.currentTimeMillis());
-
+                        
                         //  ordering
                         ordering = Utilities.intToByteArray(counter);
-
+                        
+                        //  checksum
+                        Checksum crcChecksum = new CRC32();
+                        crcChecksum.update(audioData, 0, audioData.length);
+                        long checksumVal = crcChecksum.getValue();
+                        checksum = Utilities.longToByteArray(checksumVal);
+                        
                         //  COMPILE PACKET DATA (HEADER + AUDIO)
                         ByteArrayOutputStream compilePacket = new ByteArrayOutputStream();
                         compilePacket.write(ordering);
                         compilePacket.write(timestamp);
+                        compilePacket.write(checksum);
                         compilePacket.write(audioData);
+                        
+                       
 
                         byte data[] = compilePacket.toByteArray();
 
@@ -113,28 +121,35 @@ public class AudioSender2 implements Runnable {
                     }
                     blockInterleaverTemp.clear();
                 } else {
-                    
-                     //  AUDIO DATA
-                        audioData = recorder.getBlock();
+
+                    //  AUDIO DATA
+                    audioData = recorder.getBlock();
 
                         //  HEADER
-                        //  timestamp
-                        timestamp = Utilities.longToByteArray(System.currentTimeMillis());
+                    //  timestamp
+                    timestamp = Utilities.longToByteArray(System.currentTimeMillis());
 
-                        //  ordering
-                        ordering = Utilities.intToByteArray(counter);
+                    //  ordering
+                    ordering = Utilities.intToByteArray(counter);
 
-                        //  COMPILE PACKET DATA (HEADER + AUDIO)
-                     ByteArrayOutputStream compilePacket = new ByteArrayOutputStream();
-                     compilePacket.write(ordering);
+                    //  checksum
+                    Checksum crcChecksum = new CRC32();
+                    crcChecksum.update(audioData, 0, audioData.length);
+                    long checksumVal = crcChecksum.getValue();
+                    checksum = Utilities.longToByteArray(checksumVal);
+
+                    //  COMPILE PACKET DATA (HEADER + AUDIO)
+                    ByteArrayOutputStream compilePacket = new ByteArrayOutputStream();
+                    compilePacket.write(ordering);
                     compilePacket.write(timestamp);
+                    compilePacket.write(checksum);
                     compilePacket.write(audioData);
 
                     byte data[] = compilePacket.toByteArray();
 
-                        //Make a DatagramPacket from it, with client address and port number
+                    //Make a DatagramPacket from it, with client address and port number
                     DatagramPacket packet = new DatagramPacket(data, data.length, clientIP, PORT);
-                    
+
                     sending_socket.send(packet);
                     counter++;
                 }
@@ -143,7 +158,7 @@ public class AudioSender2 implements Runnable {
                 e.printStackTrace();
             }
         }
-        
+
         System.out.println("Packets sent:" + counter);
         //Close audio input
         recorder.close();

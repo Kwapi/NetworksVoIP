@@ -1,7 +1,7 @@
 clear
 
 %%  OPEN AND SCAN FILE
-file = fopen('Testing\DatagramSocket2\receivedPackets.txt','r');
+file = fopen('Testing\DatagramSocket4\receivedPackets.txt','r');
 formatSpec ='%d';
 receivedPackets = fscanf(file,formatSpec);
 

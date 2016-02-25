@@ -65,6 +65,9 @@ public class AudioReceiver implements Runnable{
         
         ByteBuffer byteBufferInt = ByteBuffer.allocate(4);
         ByteBuffer byteBufferLong = ByteBuffer.allocate(Long.BYTES);
+        long timeLastPacketPlayed = System.currentTimeMillis();
+        DataPacket previousPacket = new DataPacket();
+        
         while (running){
          
             try{
@@ -85,33 +88,30 @@ public class AudioReceiver implements Runnable{
                 }
                 
                 
-                byte[] ordering = Arrays.copyOfRange(buffer, 0, 4);
-                byte[] timestamp = Arrays.copyOfRange(buffer,4,12);
-                byte[] audio = Arrays.copyOfRange(buffer, 12, 524);
+                DataPacket currentPacket = new DataPacket(packet.getData());
                 
-                
-                int orderingInt = Utilities.byteArrayToInt(ordering);
-                long timestampLong = Utilities.byteArrayToLong(timestamp);
-                
-                long delay = System.currentTimeMillis() - timestampLong;
-                if(orderingInt != lastPacketReceived + 1){
-                    int difference = orderingInt - lastPacketReceived;
+                              
+                long delay = System.currentTimeMillis() - currentPacket.getTimestamp();
+                if(currentPacket.getId() != previousPacket.getId() + 1){
+                    int difference = currentPacket.getId() - lastPacketReceived;
                     
                     if(difference <0){
                         System.out.print("\n!!!\t ORDERING MISMATCH BY " + difference +"\t!!!");
                         System.out.println(Arrays.toString(buffer));
                     }else{
-                        System.out.printf("\n!!!\t %d PACKETS LOST\t\t\t!!!",orderingInt - lastPacketReceived - 1);
+                        System.out.printf("\n!!!\t %d PACKETS LOST\t\t\t!!!",difference - 1);
                     }
                     
                 }
                 
-                System.out.printf("\nPacket: \t %d \t Delay: \t%d ms",orderingInt,delay);
+                System.out.println(delay);
                 
-                player.playBlock(audio);
+                System.out.println("Playback delay: \t" + (System.currentTimeMillis() - timeLastPacketPlayed));
+                player.playBlock(currentPacket.getData());
+                timeLastPacketPlayed = System.currentTimeMillis();
+                previousPacket = currentPacket;
                 
-                lastPacketReceived = orderingInt;
-                
+                               
             } catch (IOException e){
                 System.out.println("ERROR: TextReceiver: Some random IO error occured!");
                 e.printStackTrace();

@@ -24,12 +24,13 @@ import javax.sound.sampled.LineUnavailableException;
 import static networksvoip.NetworksVoIP.ANALYSIS;
 import static networksvoip.NetworksVoIP.BLOCK_INTERLEAVER_DIM;
 import static networksvoip.NetworksVoIP.BUFFER_SIZE;
+import static networksvoip.NetworksVoIP.CONCEALMENT_MODE;
 import static networksvoip.NetworksVoIP.DELAY_ANALYSIS;
 import static networksvoip.NetworksVoIP.GENERAL_PRINTOUTS;
 import static networksvoip.NetworksVoIP.MODIFIED;
 import static networksvoip.NetworksVoIP.REPETITION;
 import static networksvoip.NetworksVoIP.SILENCE;
-import static networksvoip.Utilities.concealError;
+import static networksvoip.Utilities.concealErrorBuffer;
 import static networksvoip.Utilities.isError;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
@@ -121,7 +122,7 @@ public class AudioReceiver3 implements Runnable {
                         voiceVector.add(current.getData());
 
                         if (isError(current, next)) {
-                            concealError(bufferOutput, REPETITION);
+                            concealErrorBuffer(bufferOutput, CONCEALMENT_MODE);
                         }
                         
                         if(GENERAL_PRINTOUTS){
