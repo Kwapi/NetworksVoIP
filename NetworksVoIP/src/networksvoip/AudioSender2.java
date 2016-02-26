@@ -12,6 +12,7 @@ import java.util.zip.Checksum;
 import javax.sound.sampled.LineUnavailableException;
 import static networksvoip.NetworksVoIP.BLOCK_INTERLEAVER_DIM;
 import static networksvoip.NetworksVoIP.INTERLEAVING;
+import static networksvoip.NetworksVoIP.IP_ADDRESS;
 import static networksvoip.NetworksVoIP.MODIFIED;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 
@@ -25,7 +26,7 @@ public class AudioSender2 implements Runnable {
     }
 
     public void run() {
-
+        boolean running = true;
         System.out.println("Sending");
         //***************************************************
         //Port to send to
@@ -33,7 +34,7 @@ public class AudioSender2 implements Runnable {
         //IP ADDRESS to send to
         InetAddress clientIP = null;
         try {
-            clientIP = InetAddress.getByName("localhost");
+            clientIP = InetAddress.getByName(IP_ADDRESS);
         } catch (UnknownHostException e) {
             System.out.println("ERROR: TextSender: Could not find client IP");
             e.printStackTrace();
@@ -60,8 +61,10 @@ public class AudioSender2 implements Runnable {
         int blockCounter = 1;
         ArrayList<DatagramPacket> blockInterleaver = new ArrayList<>();
         ArrayList<DatagramPacket> blockInterleaverTemp = new ArrayList<>();
-
-        while (counter < 1000) {
+        
+        
+        
+        while (running) {
             try {
                 //  4 bytes ordering
                 //  8 bytes timestamp

@@ -85,6 +85,7 @@ public class AudioReceiver4 implements Runnable {
                     receiving_socket.receive(packet);
                 } catch (SocketTimeoutException e) {
                     System.out.println("Socket timed out");
+                    running = false;
                 } catch (IOException e) {
                     System.out.println("Error in transmission");
                 }

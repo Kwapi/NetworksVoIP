@@ -72,7 +72,7 @@ public class AudioReceiver implements Runnable{
          
             try{
                 //Receive a DatagramPacket 
-                byte[] buffer = new byte[524];
+                byte[] buffer = new byte[532];
                 
                 DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length);
 
@@ -104,10 +104,11 @@ public class AudioReceiver implements Runnable{
                     
                 }
                 
-                System.out.println(delay);
+               // System.out.println(delay);
                 
-                System.out.println("Playback delay: \t" + (System.currentTimeMillis() - timeLastPacketPlayed));
+                //System.out.println("Playback delay: \t" + (System.currentTimeMillis() - timeLastPacketPlayed));
                 player.playBlock(currentPacket.getData());
+                
                 timeLastPacketPlayed = System.currentTimeMillis();
                 previousPacket = currentPacket;
                 

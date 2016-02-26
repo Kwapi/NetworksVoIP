@@ -88,7 +88,7 @@ public class AudioReceiver2 implements Runnable {
 
             try {
                 //Receive a DatagramPacket 
-                byte[] buffer = new byte[524];
+                byte[] buffer = new byte[532];
 
                 DatagramPacket packet = new DatagramPacket(buffer, 0, buffer.length);
 

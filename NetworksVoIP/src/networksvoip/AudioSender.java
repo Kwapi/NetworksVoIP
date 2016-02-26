@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 import javax.sound.sampled.LineUnavailableException;
+import static networksvoip.NetworksVoIP.IP_ADDRESS;
 import uk.ac.uea.cmp.voip.DatagramSocket2;
 import uk.ac.uea.cmp.voip.DatagramSocket3;
 import uk.ac.uea.cmp.voip.DatagramSocket4;
@@ -43,7 +44,7 @@ public class AudioSender implements Runnable{
         //IP ADDRESS to send to
         InetAddress clientIP = null;
 	try {
-		clientIP = InetAddress.getByName("localhost");
+		clientIP = InetAddress.getByName(IP_ADDRESS);
 	} catch (UnknownHostException e) {
                 System.out.println("ERROR: TextSender: Could not find client IP");
 		e.printStackTrace();

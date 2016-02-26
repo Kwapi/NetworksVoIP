@@ -15,16 +15,19 @@ public class NetworksVoIP {
    static boolean ANALYSIS;
    static boolean GENERAL_PRINTOUTS;
    static int BUFFER_SIZE;
+   public static String IP_ADDRESS;
   
    
    public static void main(String[] args) {
        
-       MODIFIED = false;
+       IP_ADDRESS = "CMPLEWIN-03";
+       
+       MODIFIED = true;
        BUFFER_SIZE = 9;
        CONCEALMENT_MODE = REPETITION;
        
-       INTERLEAVING = false;
-       BLOCK_INTERLEAVER_DIM = 4;
+       INTERLEAVING = true;
+       BLOCK_INTERLEAVER_DIM = 3;
        
        DELAY_ANALYSIS = false;
        ANALYSIS = false;
@@ -32,8 +35,8 @@ public class NetworksVoIP {
        
        
      
-       AudioReceiver3 audioReceiver = new AudioReceiver3();
-       AudioSender3 audioSender = new AudioSender3();
+       AudioReceiver2 audioReceiver = new AudioReceiver2();
+       AudioSender2 audioSender = new AudioSender2();
        
        audioReceiver.start();
        audioSender.start();
